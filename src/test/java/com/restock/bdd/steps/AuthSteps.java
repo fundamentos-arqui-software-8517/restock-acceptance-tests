@@ -77,51 +77,70 @@ public class AuthSteps {
         Assertions.assertTrue(response.getStatusCode() == 400 || response.getStatusCode() == 409);
     }
 
-    // ---- LOGIN ----
+    // ---- GESTIÓN DE PERFIL ----
 
-    @Given("the user has a registered account")
-    public void theUserHasARegisteredAccount() {
-        // precondición: existe usuario en la BD
+    @Given("the user is logged in to the platform")
+    public void theUserIsLoggedInToThePlatform() {
+        // precondición: usuario autenticado
     }
 
-    @When("they enter their valid credentials email and password")
-    public void theyEnterValidCredentials() {
-        Map<String, Object> body = new HashMap<>();
-        body.put("username", "existing@restock.com");
-        body.put("password", "SecurePass123!");
-
+    @When("they navigate to the profile section")
+    public void theyNavigateToTheProfileSection() {
         response = RestAssured
                 .given()
                 .contentType("application/json")
-                .body(body)
-                .post(BASE_URL + "/api/v1/authentication/sign-in");
+                .get(BASE_URL + "/api/v1/profiles/me");
     }
 
-    @Then("they access their account successfully")
-    public void theyAccessTheirAccount() {
+    @Then("they can see their current profile information displayed")
+    public void theyCanSeeTheirCurrentProfileInformation() {
         Assertions.assertEquals(200, response.getStatusCode());
     }
 
-    @Given("the user has not logged in")
-    public void theUserHasNotLoggedIn() {
-        // estado inicial
+    @Given("the user is on the profile page")
+    public void theUserIsOnTheProfilePage() {
+        // precondición
     }
 
-    @When("they enter an incorrect email or password")
-    public void theyEnterIncorrectCredentials() {
+    @When("they update their basic information and confirm the changes")
+    public void theyUpdateTheirBasicInformation() {
         Map<String, Object> body = new HashMap<>();
-        body.put("username", "wrong@restock.com");
-        body.put("password", "WrongPassword!");
+        body.put("firstName", "Juan");
+        body.put("lastName", "Pérez");
+        body.put("phone", "+51999999999");
 
         response = RestAssured
                 .given()
                 .contentType("application/json")
                 .body(body)
-                .post(BASE_URL + "/api/v1/authentication/sign-in");
+                .put(BASE_URL + "/api/v1/profiles/me");
     }
 
-    @Then("a message is shown indicating the credentials are not valid and access is denied")
-    public void aMessageIsShownInvalidCredentials() {
-        Assertions.assertTrue(response.getStatusCode() == 400 || response.getStatusCode() == 401);
+    @Then("the system saves the updated data and displays a confirmation message")
+    public void theSystemSavesTheUpdatedData() {
+        Assertions.assertTrue(response.getStatusCode() == 200 || response.getStatusCode() == 204);
+    }
+
+    @Given("the user is on the profile settings page")
+    public void theUserIsOnTheProfileSettingsPage() {
+        // precondición
+    }
+
+    @When("they modify their system preferences")
+    public void theyModifyTheirSystemPreferences() {
+        Map<String, Object> body = new HashMap<>();
+        body.put("language", "es");
+        body.put("notifications", true);
+
+        response = RestAssured
+                .given()
+                .contentType("application/json")
+                .body(body)
+                .patch(BASE_URL + "/api/v1/profiles/me/preferences");
+    }
+
+    @Then("the preferences are saved and applied to their account")
+    public void thePreferencesAreSavedAndApplied() {
+        Assertions.assertTrue(response.getStatusCode() == 200 || response.getStatusCode() == 204);
     }
 }
